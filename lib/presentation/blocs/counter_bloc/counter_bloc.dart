@@ -9,6 +9,7 @@ class CounterBloc extends Bloc<CounterEvent, CounterState> {
     on<CounterIncreased>(_onCounterIncreased);
     // on<CounterIncreased>((event, emit) => _onCounterIncreased(event, emit)); //!Esta linea es igual que la de arriba
     // Cuando los parametros son los mismos se puede enviar la funcion por referencia
+    on<CounterReset>(_onCounterReseted);
   }
 
   void _onCounterIncreased(CounterIncreased event, Emitter<CounterState> emit) {
@@ -18,5 +19,9 @@ class CounterBloc extends Bloc<CounterEvent, CounterState> {
         transactionCount: state.transactionCount + 1,
       ),
     );
+  }
+
+  void _onCounterReseted(CounterReset event, Emitter<CounterState> emit) {
+    emit(state.copyWith(counter: 0));
   }
 }

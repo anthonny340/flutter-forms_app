@@ -1,31 +1,67 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:forms_app/presentation/blocs/counter_bloc/counter_bloc.dart';
 
 class BlocCounterScreen extends StatelessWidget {
   const BlocCounterScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (BuildContext _) => CounterBloc(),
+      child: BlocCouterView(),
+    );
+  }
+}
+
+class BlocCouterView extends StatelessWidget {
+  const BlocCouterView({super.key});
+
+  void increseCounterBy(BuildContext context, [int value = 1]) {
+    context.read<CounterBloc>().add(CounterIncreased(value));
+  }
+
+  void resetCounter(BuildContext context) {
+    context.read<CounterBloc>().add(CounterReset());
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('BLoC Counter'),
-        actions: [IconButton(onPressed: () {}, icon: Icon(Icons.refresh))],
+        title: context.select(
+          (CounterBloc counterBloc) =>
+              Text('BLoC Counter: ${counterBloc.state.transactionCount}'),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () => resetCounter(context),
+            icon: Icon(Icons.refresh),
+          ),
+        ],
       ),
-      body: Center(child: const Text('Counter Value: XX')),
+      body: Center(
+        child: context.select(
+          (CounterBloc counterBloc) =>
+              Text('Counter Value: ${counterBloc.state.counter}'),
+        ),
+      ),
       floatingActionButton: Column(
+        spacing: 10,
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FloatingActionButton(
-            onPressed: () {},
+            onPressed: () => increseCounterBy(context, 3),
             heroTag: '1',
             child: const Text('+3'),
           ),
           FloatingActionButton(
-            onPressed: () {},
+            onPressed: () => increseCounterBy(context, 2),
             heroTag: '2',
             child: const Text('+2'),
           ),
           FloatingActionButton(
-            onPressed: () {},
+            onPressed: () => increseCounterBy(context),
             heroTag: '3',
             child: const Text('+1'),
           ),
