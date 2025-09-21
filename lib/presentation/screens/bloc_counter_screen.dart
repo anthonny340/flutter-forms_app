@@ -18,11 +18,16 @@ class BlocCouterView extends StatelessWidget {
   const BlocCouterView({super.key});
 
   void increseCounterBy(BuildContext context, [int value = 1]) {
-    context.read<CounterBloc>().add(CounterIncreased(value));
+    context.read<CounterBloc>()
+    // .add(CounterIncreased(value));
+    .increaseBy(value);
   }
 
   void resetCounter(BuildContext context) {
-    context.read<CounterBloc>().add(CounterReset());
+    context
+        .read<CounterBloc>()
+        // .add(CounterReset());
+        .resetCounter();
   }
 
   @override
