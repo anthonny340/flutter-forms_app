@@ -21,6 +21,13 @@ class HomeScreen extends StatelessWidget {
             trailing: Icon(Icons.arrow_forward),
             onTap: () => context.push('/counter-bloc'),
           ),
+          Padding(padding: EdgeInsets.symmetric(horizontal: 10)),
+          ListTile(
+            title: Text('Proximamente'),
+            subtitle: const Text('...'),
+            trailing: Icon(Icons.arrow_forward),
+            onTap: () {},
+          ),
         ],
       ),
     );
