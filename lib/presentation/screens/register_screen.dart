@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:forms_app/presentation/blocs/register/register_cubit.dart';
 import 'package:forms_app/presentation/widgets/widgets.dart';
 
 class RegisterScreen extends StatelessWidget {
@@ -8,7 +10,12 @@ class RegisterScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(centerTitle: true, title: const Text('Nuevo usuario')),
-      body: _RegisterView(),
+      //NO olvidar de envolver todos los widgets que van a tener acceso a nuestro registerCubit
+      //Con esto nos aseguramos de que el BlocProvider (RegisterCubit) sea parte del BuildContext
+      body: BlocProvider(
+        create: (context) => RegisterCubit(),
+        child: _RegisterView(),
+      ),
     );
   }
 }
@@ -47,12 +54,11 @@ class _RegisterForm extends StatefulWidget {
 class _RegisterFormState extends State<_RegisterForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  String username = '';
-  String email = '';
-  String password = '';
-
   @override
   Widget build(BuildContext context) {
+    //Cuando se emplea el watch cada que el estado cambia flutter va a ser la reenderizacion
+    //de los componentes afectados
+    final registerCubit = context.watch<RegisterCubit>();
     return Form(
       key: _formKey,
       child: Column(
@@ -60,7 +66,14 @@ class _RegisterFormState extends State<_RegisterForm> {
           CustomTextFormField(
             label: 'Nombre de usuario',
             hintText: 'Anthonny Sacheri',
-            onChanged: (value) => username = value,
+            onChanged: (value) {
+              registerCubit.usernameChanged(value);
+              //Cada vez que hay un cambio mando a validar todos los campos del formulario (a considerar)
+              _formKey.currentState?.validate();
+            },
+            // TODO Evitar repetir codigo con las validaciones para ello podemos emplear varias soluciones
+            // Hacer las validaciones en el register_state o crear un archivo con todas las validaciones
+            // y las mandamos a llamar cuando las necesitemos
             validator: (value) {
               if (value == null) return 'Campo requerido';
               if (value.trim().isEmpty) return 'Campo requerido';
@@ -72,7 +85,10 @@ class _RegisterFormState extends State<_RegisterForm> {
           CustomTextFormField(
             label: 'Correo electronico',
             hintText: 'anthonnysacheri@gmail.com',
-            onChanged: (value) => email = value,
+            onChanged: (value) {
+              registerCubit.emailChanged(value);
+              _formKey.currentState?.validate();
+            },
             validator: (value) {
               if (value == null) return 'Campo requerido';
               if (value.trim().isEmpty) return 'Campo requerido';
@@ -88,7 +104,10 @@ class _RegisterFormState extends State<_RegisterForm> {
           CustomTextFormField(
             label: 'Contraseña',
             obscureText: true,
-            onChanged: (value) => password = value,
+            onChanged: (value) {
+              registerCubit.passwordChanged(value);
+              _formKey.currentState?.validate();
+            },
             validator: (value) {
               if (value == null) return 'Campo requerido';
               if (value.trim().isEmpty) return 'Campo requerido';
@@ -99,9 +118,12 @@ class _RegisterFormState extends State<_RegisterForm> {
           SizedBox(height: 25),
           FilledButton.tonalIcon(
             onPressed: () {
+              //TODO bloquear el boton cuando los valores estan cargando
               final isValid = _formKey.currentState!.validate();
               if (!isValid) return;
-              print('$username, $email, $password');
+
+              registerCubit.onSubmit();
+              // print('$username, $email, $password');
             },
             icon: Icon(Icons.save_outlined),
             label: Text('Guardar usuario'),
