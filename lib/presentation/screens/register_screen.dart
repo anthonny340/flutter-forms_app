@@ -44,42 +44,28 @@ class _RegisterView extends StatelessWidget {
   }
 }
 
-class _RegisterForm extends StatefulWidget {
+class _RegisterForm extends StatelessWidget {
   const _RegisterForm();
 
   @override
-  State<_RegisterForm> createState() => _RegisterFormState();
-}
-
-class _RegisterFormState extends State<_RegisterForm> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  @override
   Widget build(BuildContext context) {
-    //Cuando se emplea el watch cada que el estado cambia flutter va a ser la reenderizacion
-    //de los componentes afectados
+    /*Cuando se emplea el watch cada que el estado cambia flutter va a ser la reenderizacion
+    de los componentes afectados
+
+    Toda la data de nuestro formulario se encuentra en registerCubit, como se encuentra la data
+    como esta el estado de cada uno de nuestro campos, todo esta alli
+    */
     final registerCubit = context.watch<RegisterCubit>();
+    final username = registerCubit.state.username;
+    final password = registerCubit.state.password;
     return Form(
-      key: _formKey,
       child: Column(
         children: [
           CustomTextFormField(
             label: 'Nombre de usuario',
             hintText: 'Anthonny Sacheri',
-            onChanged: (value) {
-              registerCubit.usernameChanged(value);
-              //Cada vez que hay un cambio mando a validar todos los campos del formulario (a considerar)
-              _formKey.currentState?.validate();
-            },
-            // TODO Evitar repetir codigo con las validaciones para ello podemos emplear varias soluciones
-            // Hacer las validaciones en el register_state o crear un archivo con todas las validaciones
-            // y las mandamos a llamar cuando las necesitemos
-            validator: (value) {
-              if (value == null) return 'Campo requerido';
-              if (value.trim().isEmpty) return 'Campo requerido';
-              if (value.length < 6) return 'Mas de 6 letras';
-              return null;
-            },
+            onChanged: registerCubit.usernameChanged,
+            errorMessage: username.errorMessage,
           ),
           SizedBox(height: 15),
           CustomTextFormField(
@@ -87,7 +73,6 @@ class _RegisterFormState extends State<_RegisterForm> {
             hintText: 'anthonnysacheri@gmail.com',
             onChanged: (value) {
               registerCubit.emailChanged(value);
-              _formKey.currentState?.validate();
             },
             validator: (value) {
               if (value == null) return 'Campo requerido';
@@ -104,24 +89,12 @@ class _RegisterFormState extends State<_RegisterForm> {
           CustomTextFormField(
             label: 'Contraseña',
             obscureText: true,
-            onChanged: (value) {
-              registerCubit.passwordChanged(value);
-              _formKey.currentState?.validate();
-            },
-            validator: (value) {
-              if (value == null) return 'Campo requerido';
-              if (value.trim().isEmpty) return 'Campo requerido';
-              if (value.length < 6) return 'Mas de 6 letras';
-              return null;
-            },
+            onChanged: registerCubit.passwordChanged,
+            errorMessage: password.errorMessage,
           ),
           SizedBox(height: 25),
           FilledButton.tonalIcon(
             onPressed: () {
-              //TODO bloquear el boton cuando los valores estan cargando
-              // final isValid = _formKey.currentState!.validate();
-              // if (!isValid) return;
-
               registerCubit.onSubmit();
               // print('$username, $email, $password');
             },
